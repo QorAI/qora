@@ -1,0 +1,361 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta
+    name="description"
+    content="Web site created using HTML & Web Components" />
+  <link href="./css/variables.css" rel="stylesheet" />
+  <title>Web Components</title>
+  <style>
+    body {
+      background: var(--qora-color-page-background);
+      color: var(--qora-color-text-primary);
+    }
+
+    .component-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .blur {
+      filter: blur(1px);
+    }
+
+    .navigation-container {
+      border-radius: var(--qora-radius-m);
+      background: var(--qora-color-container-background);
+      box-shadow:
+        0px 1px 4px 0px rgba(0, 0, 0, 0.07),
+        0px 1px 0px 0px rgba(0, 0, 0, 0.04);
+      width: 300px;
+      height: 100%;
+    }
+
+    .navigation-theme-switcher {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--qora-spacing-m);
+    }
+
+    .navigation-theme-switcher span {
+      padding-left: var(--qora-spacing-m);
+      color: var(--qora-color-text-secondary);
+      font: var(--qora-font-components-navbutton);
+    }
+
+    .navigation-action-items {
+      padding-top: var(--qora-spacing-m);
+    }
+
+    .segmented-control-full {
+      --qora-segmented-control-width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <script type="module">
+    import './qora/button.js'
+    import './qora/link.js'
+    import './qora/collapse.js'
+    import './qora/checkbox.js'
+    import './qora/toggle.js'
+    import './qora/progressRing.js'
+    import './qora/progressBar.js'
+    import './qora/alert.js'
+    import { showAlert } from './qora/alertCenter.js'
+    import './qora/icon.js'
+    import './qora/radioButton.js'
+    import './qora/dialog.js'
+    import './shared/dialogHelpers.js'
+    import './qora/dropdown.js'
+    import './qora/input.js'
+    import './qora/tabs.js'
+    import './qora/tabItem.js'
+    import './qora/tooltip.js'
+    import './qora/segmentedControl.js'
+    import './qora/segmentedControlItem.js'
+    import './qora/navigation.js'
+    import './qora/navigationHeader.js'
+    import './qora/navigationMenu.js'
+    import './qora/navigationItem.js'
+    import './qora/navigationActions.js'
+    import './qora/hr.js'
+
+    const countries = {
+      'NZ': 'New Zealand',
+      'AU': 'Australia',
+      'UK': 'United Kingdom',
+      'CA': 'Canada'
+    }
+
+    let count = 10
+    const clickable = document.getElementById('clickable')
+    const linkButton = document.querySelector('#link-button')
+    const ring = document.querySelector('qora-progressring')
+    const bar = document.querySelector('qora-progressbar')
+    const toggle = document.querySelector('qora-toggle')
+    const toggleButton = document.querySelector('#toggle-button')
+    const collapse = document.querySelector('qora-collapse')
+    const dialogButton = document.querySelector('#dialog-button')
+    const dialog = document.querySelector('qora-dialog')
+    const radios = document.querySelectorAll('qora-radiobutton[name=options]')
+    const dropdown = document.querySelector('qora-dropdown')
+    const dropdownSelected = document.querySelector('qora-dropdown [slot="value"]')
+    const input = document.querySelector('qora-input')
+    const segmentedControlExample = document.querySelector('#example-segmented-control');
+    const segmentedControlToggle = segmentedControlExample.querySelector('qora-toggle');
+    const segmentedControl = segmentedControlExample.querySelector('qora-segmentedcontrol');
+
+    for (const navItem of document.querySelectorAll('qora-navigationitem')) {
+      navItem.addEventListener('click', e => {
+        const href = navItem.getAttribute('href')
+        if (!href) return
+        window.location = new URL(href, window.location)
+      })
+    }
+
+    function updateSelectedOption(e) {
+      for (const radio of radios)
+        radio.currentValue = e.value
+      dropdown.value = e.value
+      dropdownSelected.innerText = countries[e.value]
+    }
+    dropdown.addEventListener('change', updateSelectedOption)
+    for (const radio of radios)
+      radio.addEventListener('change', updateSelectedOption)
+
+    clickable.addEventListener('click', () => {
+      count += 10
+      if (count > 100) count = 0
+
+      const progress = count / 100
+      clickable.innerText = `Progress: ${progress}`
+      ring.progress = progress
+      bar.progress = progress
+
+      showAlert({
+        content: `progress is ${progress}`,
+        canDismiss: true,
+        actions: [{
+          text: 'dismiss',
+          action: a => a.dismiss()
+        }]
+      })
+    })
+
+    let isToggled = false
+    const toggled = () => {
+      isToggled = !isToggled
+
+      toggle.checked = isToggled
+      collapse.isOpen = isToggled
+      toggleButton.textContent = `Open: ${isToggled}`
+      input.value = toggleButton.textContent
+    }
+
+    toggle.addEventListener('change', toggled)
+    toggleButton.addEventListener('click', toggled)
+    collapse.addEventListener('toggle', toggled)
+    input.addEventListener('input', e => {
+      toggleButton.textContent = e.value
+    })
+
+    segmentedControlToggle.addEventListener('change', () => {
+      segmentedControl.classList.toggle('segmented-control-full')
+    })
+
+    dialogButton.addEventListener('click', () => {
+      dialog.isOpen = true
+      dialogButton.isDisabled = true
+    })
+    dialog.addEventListener('close', () => dialogButton.isDisabled = false)
+
+    linkButton.addEventListener('click', () => {
+      dialog.isOpen = true
+      linkButton.isDisabled = true
+    })
+    dialog.addEventListener('close', () => linkButton.isDisabled = false)
+
+    const searchInput = document.querySelector('qora-input:has(#searchPicker)')
+    const searchDropdown = document.querySelector('#searchPicker')
+    searchDropdown.addEventListener('change', e => {
+      const valueIcon = searchDropdown.querySelector('[slot=value] qora-icon')
+      const icon = searchDropdown.querySelector(`qora-option[value=${e.value}] qora-icon`)
+
+      valueIcon.name = icon.name
+    })
+
+    segmentedControl.addEventListener('change', (e) => {
+      document.querySelector('qora-alert').mode = e.value;
+    })
+  </script>
+  <div class="component-container">
+    <qora-alertcenter></qora-alertcenter>
+    <qora-button id="clickable">Click Me</qora-button>
+    <qora-button href="https://qorai.com">External link</qora-button>
+    <qora-link href="https://qorai.com">External link</qora-link>
+    <qora-link id="link-button">Link Button</qora-link>
+    <qora-checkbox>Checkable!</qora-checkbox>
+    <qora-collapse title="Handy dandy title">
+      Some content which is hidden by default
+    </qora-collapse>
+    <qora-toggle>Togglable!</qora-toggle>
+    <qora-tooltip text="toggles the collapse & stuff" mode="hero">
+      <qora-button kind="outline" id="toggle-button"></qora-button>
+    </qora-tooltip>
+    <qora-input value="Qora Button" required showErrors>
+      What does the button say?
+    </qora-input>
+    <qora-progressring progress="0.25"></qora-progressring>
+    <qora-progressbar progress="0.25"></qora-progressbar>
+    <div>
+      <qora-radiobutton name="options" value="NZ"></qora-radiobutton>
+      <qora-radiobutton name="options" value="AU"></qora-radiobutton>
+      <qora-radiobutton name="options" value="UK"></qora-radiobutton>
+      <qora-radiobutton name="options" value="CA"></qora-radiobutton>
+    </div>
+    <qora-alert mode="full">
+      <span slot="title">Hello World</span>
+      <div>This is the content</div>
+      <div slot="actions">
+        <qora-button>Do the thing</qora-button>
+        <qora-button kind="tertiary">Cancel</qora-button>
+      </div>
+    </qora-alert>
+    <qora-button id="dialog-button">Show Dialog</qora-button>
+    <qora-dropdown placeholder="Select an option...">
+      <qora-icon slot="left-icon" name="flag"></qora-icon>
+      <div id="selectedCountry" slot="value"></div>
+      <qora-title>countries</qora-title>
+      <qora-option value="NZ">New Zealand</qora-option>
+      <qora-option value="AU">Australia</qora-option>
+      <qora-option value="AR">Argentina</qora-option>
+      <qora-option value="UK">
+        <div class="blur">United Kingdom</div>(blurred on purpose)
+      </qora-option>
+      <qora-option value="CA">Canada</qora-option>
+    </qora-dropdown>
+    <qora-input>
+      <div slot="left-icon">
+        <qora-dropdown id="searchPicker" positionstrategy="fixed">
+          <div slot="value">
+            <qora-icon></qora-icon>
+          </div>
+          <qora-option value="QorAI">
+            <qora-icon name="qorai-icon-release-color"></qora-icon>
+          </qora-option>
+          <qora-option value="Google">
+            <qora-icon name="google-color"></qora-icon>
+          </qora-option>
+          <qora-option value="Bing">
+            <qora-icon name="bing-color"></qora-icon>
+          </qora-option>
+        </qora-dropdown>
+      </div>
+    </qora-input>
+    <qora-dialog showclose>
+      <span slot="title">This is the title</span>
+      <span slot="subtitle">This is the subtitle</span>
+      <div>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ipsum pharetra
+        est et viverra massa enim aliquam. Volutpat tristique id mi blandit
+        interdum elit quam commodo vel. Ac laoreet magna ac sed diam volutpat.
+        Sit mauris, orci diam in habitasse nec dolor odio pharetra.
+
+        <div class="alert-container">
+          <Alert>
+            <div>This is an info box</div>
+          </Alert>
+        </div>
+      </div>
+      <div slot="actions">
+        <qora-button kind="outline">Secondary</qora-button>
+        <qora-button kind="filled">Primary</qora-button>
+      </div>
+    </qora-dialog>
+    <qora-tabs value="tab-2">
+      <qora-tabitem value="tab-1">Tab 1</qora-tabitem>
+      <qora-tabitem value="tab-2">Tab 2</qora-tabitem>
+      <qora-tabitem value="tab-3">Tab 3</qora-tabitem>
+    </qora-tabs>
+    <div id="example-segmented-control">
+      <qora-toggle>Toggle segmented control and tabs from automatic to parent's width</qora-toggle>
+      <qora-segmentedcontrol value="full">
+        <qora-segmentedcontrolitem value="full">
+          Full
+          <qora-icon slot="icon-after" name="fullscreen-on"></qora-icon>
+        </qora-segmentedcontrolitem>
+        <qora-segmentedcontrolitem value="simple">
+          Simple
+          <qora-icon slot="icon-after" name="fullscreen-off"></qora-icon>
+        </qora-segmentedcontrolitem>
+      </qora-segmentedcontrol>
+    </div>
+
+    <div class="navigation-container">
+      <qora-navigation>
+        <qora-navigationheader slot="header">
+          <qora-icon slot="logo" name="social-qorai-release-favicon-fullheight-color"></qora-icon>
+          <h1 style="font: var(--qora-font-heading-h4); color: var(--qora-color-text-primary);">QorAI Accounts</h1>
+        </qora-navigationheader>
+
+        <qora-navigationmenu>
+          <qora-navigationitem icon="browser-home" href="#home">Home</qora-navigationitem>
+
+          <qora-navigationitem icon="discover" href="#explore">Explore</qora-navigationitem>
+
+          <qora-navigationitem icon="discover" href="#settings">
+            Settings
+
+            <qora-navigationmenu slot="subnav">
+              <qora-navigationitem icon="globe" href="#settings-languages">Languages</qora-navigationitem>
+
+              <qora-navigationitem icon="lock" href="#settings-security">
+                Security
+
+                <qora-navigationmenu slot="subnav">
+                  <qora-navigationitem icon="user-accounts"
+                    href="#settings-security-account">Account</qora-navigationitem>
+
+                  <qora-navigationitem icon="browser-extensions"
+                    href="#settings-security-tokens">Tokens</qora-navigationitem>
+                </qora-navigationmenu>
+              </qora-navigationitem>
+            </qora-navigationmenu>
+          </qora-navigationitem>
+        </qora-navigationmenu>
+
+        <qora-navigationactions slot="actions">
+          <div class="navigation-theme-switcher">
+            <span>Theme</span>
+            <qora-segmentedcontrol size="tiny" value="light">
+              <qora-segmentedcontrolitem value="light">
+                <qora-icon name="theme-light"></qora-icon>
+              </qora-segmentedcontrolitem>
+              <qora-segmentedcontrolitem value="dark">
+                <qora-icon name="theme-dark"></qora-icon>
+              </qora-segmentedcontrolitem>
+              <qora-segmentedcontrolitem value="system">
+                <qora-icon name="theme-system"></qora-icon>
+              </qora-segmentedcontrolitem>
+            </qora-segmentedcontrol>
+          </div>
+          <qora-hr></qora-hr>
+          <div class="navigation-action-items">
+            <qora-navigationitem outsideList="true" icon="help-outline">Help</qora-navigationitem>
+            <qora-navigationitem outsideList="true" icon="outside">Log out</qora-navigationitem>
+          </div>
+        </qora-navigationactions>
+      </qora-navigation>
+    </div>
+  </div>
+</body>
+
+</html>

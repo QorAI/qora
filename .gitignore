@@ -1,0 +1,14 @@
+.DS_Store
+.vscode
+node_modules/
+/build/
+/icons-raw/
+/icons-sf
+/icons-skia
+/react/
+/shared/
+/storybook-static/
+/storyHelpers/
+/tokens/
+/types/
+/web-components/

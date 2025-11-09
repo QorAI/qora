@@ -1,0 +1,25 @@
+name: Update SF Symbols
+on:
+  push:
+    paths:
+      - 'icons/**'
+      - 'src/scripts/gen-sf-icons.js'
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          github-token: ${{ secrets.LEO_SF_SYMBOLS_ACCESS_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'qorai',
+              repo: 'qora-sf-symbols',
+              workflow_id: 'update.yml',
+              ref: 'main'
+            })
